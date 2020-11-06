@@ -2,6 +2,8 @@ import RPi.GPIO as GPIO
 import json
 import os.path
 import datetime
+import random
+import time
 
 #set the GPIO to read the pins using the Broadcom SOC channel 
 GPIO.setmode(GPIO.BCM)
@@ -31,13 +33,16 @@ timeString = now.strftime("%H")
 
 
 
-def cloudSimulation(timeNow){
-    for x in range(0, len(ch)):
+def cloudSimulation(desiredConfig, channelsNumber):
+    cloudTime = random.randint(0, 50) #The cloud can last up to 1 hour
+    print(cloudTime)
+    for x in range(0, channelsNumber):
         actuator="ch%d" % (x)
-        print("CH%d: " % (x) + conf[actuator])
+        newPwm = random.randint(0, int(desiredConfig[actuator]))
+        print("CHKKK%d: " % (x) + " %d" % (newPwm))
         signCH=GPIO.PWM(ch[x],dutyCicle)
-        signCH.start(int(conf[actuator]))
-    }
+        signCH.start(newPwm)
+    time.sleep(cloudTime)
 
 
 
@@ -45,7 +50,9 @@ def cloudSimulation(timeNow){
 with open('lightConfig.json') as json_file:
     data = json.load(json_file)
     for conf in data['settings']:
-        if timeString == conf['time']:        
+        if timeString == conf['time']:
+            if data['cloudSimulation'] == True:
+                cloudSimulation(conf, len(ch))
             for x in range(0, len(ch)):
                 actuator="ch%d" % (x)
                 print("CH%d: " % (x) + conf[actuator])

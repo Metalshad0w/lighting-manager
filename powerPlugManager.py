@@ -27,7 +27,8 @@ with open('powerPlugConfig.json') as json_file:
         if timeString == conf['time']: 
             for x in range(0, len(pw)):
                 actuator="pw%d" % (x)
-                if x == 7 and GPIO.input(pw[x]) == 1 and int(conf[actuator]) == 0: #Skimmer Power Plug Disabled set to enable
-                    time.sleep(60)                    #Wait 1m to enable  and GPIO.input(pw[x]) == 1
+                if data["skimmerSettings"]["skimmerPowerPlug"] == x and data["skimmerSettings"]["delaySkimmerStart"] == True: #Configuration Enabled
+                    if GPIO.input(pw[x]) == 1 and conf[actuator] == False: #Skimmer Power Plug Disabled set to enable
+                        time.sleep(data["skimmerSettings"]["skimmerDelay"])                    #Wait 1m to enable  and GPIO.input(pw[x]) == 1
                     
-                GPIO.output(pw[x], int(conf[actuator]))
+                GPIO.output(pw[x], conf[actuator])

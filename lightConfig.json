@@ -167,5 +167,6 @@
 			"ch2": "45",
 			"ch3": "12"
 		}
-	]
+	],
+        "cloudSimulation": true
 }

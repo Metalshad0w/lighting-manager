@@ -30,6 +30,18 @@ now = datetime.datetime.now()
 timeString = now.strftime("%H")
 
 
+
+def cloudSimulation(timeNow){
+    for x in range(0, len(ch)):
+        actuator="ch%d" % (x)
+        print("CH%d: " % (x) + conf[actuator])
+        signCH=GPIO.PWM(ch[x],dutyCicle)
+        signCH.start(int(conf[actuator]))
+    }
+
+
+
+
 with open('lightConfig.json') as json_file:
     data = json.load(json_file)
     for conf in data['settings']:

@@ -14,6 +14,7 @@ dutyCicle = 50
 
 #define actuators GPIOs
 ch = [26, 19, 13, 6] #GPIO26, GPIO19, GPIO13 and GPIO06
+cooler = 5 #GPIO5
 
 #define channel pins as output
 GPIO.setup(ch[0], GPIO.OUT)
@@ -22,26 +23,32 @@ GPIO.setup(ch[2], GPIO.OUT)
 GPIO.setup(ch[3], GPIO.OUT)
 
 #turn all channels OFF 
-GPIO.output(ch[0], GPIO.LOW)
-GPIO.output(ch[1], GPIO.LOW)
-GPIO.output(ch[2], GPIO.LOW)
-GPIO.output(ch[3], GPIO.LOW)
+# GPIO.output(ch[0], GPIO.LOW)
+# GPIO.output(ch[1], GPIO.LOW)
+# GPIO.output(ch[2], GPIO.LOW)
+# GPIO.output(ch[3], GPIO.LOW)
 
 #get the time value and format
 now = datetime.datetime.now()
 timeString = now.strftime("%H")
 
 
-
-def cloudSimulation(desiredConfig, channelsNumber):
-    cloudTime = random.randint(0, 50) #The cloud can last up to 1 hour
+def cloudSimulation(desiredConfig, channelsNumber, cloudMaxTime):
+    
+    cloudTime = random.randint(0, cloudMaxTime)
     print(cloudTime)
+    newConfig = desiredConfig.copy()
     for x in range(0, channelsNumber):
         actuator="ch%d" % (x)
-        newPwm = random.randint(0, int(desiredConfig[actuator]))
-        print("CHKKK%d: " % (x) + " %d" % (newPwm))
+        if desiredConfig[actuator] > 0:
+            newConfig[actuator] = random.randint(int(desiredConfig[actuator]/2), desiredConfig[actuator])
+        else:
+            newConfig[actuator] = desiredConfig[actuator]
+        
         signCH=GPIO.PWM(ch[x],dutyCicle)
-        signCH.start(newPwm)
+        signCH.start(newConfig[actuator])
+    print(desiredConfig)
+    print(newConfig)
     time.sleep(cloudTime)
 
 
@@ -51,10 +58,15 @@ with open('lightConfig.json') as json_file:
     data = json.load(json_file)
     for conf in data['settings']:
         if timeString == conf['time']:
-            if data['cloudSimulation'] == True:
-                cloudSimulation(conf, len(ch))
+            if data['cloudSettings']['cloudSimulation'] == True:
+                cloudSimulation(conf, len(ch), data['cloudSettings']['cloudMaxTime'])
             for x in range(0, len(ch)):
                 actuator="ch%d" % (x)
-                print("CH%d: " % (x) + conf[actuator])
                 signCH=GPIO.PWM(ch[x],dutyCicle)
-                signCH.start(int(conf[actuator]))
+                signCH.start(conf[actuator])
+                
+if ch[0] == GPIO.LOW and ch[1] == GPIO.LOW and ch[2] == GPIO.LOW and ch[3] == GPIO.LOW:
+    cooler = GPIO.LOW
+else:
+    cooler = GPIO.HIGH
+    

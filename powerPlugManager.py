@@ -9,14 +9,14 @@ import random
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
-#define actuators GPIOs
-pw = [21, 20, 16, 12, 7, 8, 25, 24, 23, 18, 15, 14] #GPIO21, etc
+#define actuators GPIOs (12 - 2, 2 are for environment manager)
+pw = [21, 20, 16, 12, 7, 8, 25, 24, 23, 18] #GPIO21, etc
 
 #define power plug pins as output and turn all channels OFF
 #power plug relay is ON with low signal, and OFF with High sinal
 for powerPlug in pw:
     GPIO.setup(pw, GPIO.OUT)
-    GPIO.output(pw, GPIO.HIGH)
+#     GPIO.output(pw, GPIO.HIGH)
 
 #get the time value and format
 now = datetime.datetime.now()

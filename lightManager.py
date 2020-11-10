@@ -1,6 +1,5 @@
 import RPi.GPIO as GPIO
 import json
-import os.path
 import datetime
 import random
 import time
@@ -21,6 +20,7 @@ GPIO.setup(ch[0], GPIO.OUT)
 GPIO.setup(ch[1], GPIO.OUT)
 GPIO.setup(ch[2], GPIO.OUT)
 GPIO.setup(ch[3], GPIO.OUT)
+GPIO.setup(cooler, GPIO.OUT)
 
 #turn all channels OFF 
 # GPIO.output(ch[0], GPIO.LOW)
@@ -38,6 +38,7 @@ def cloudSimulation(desiredConfig, channelsNumber, cloudMaxTime):
     cloudTime = random.randint(0, cloudMaxTime)
     print(cloudTime)
     newConfig = desiredConfig.copy()
+    signCH = []
     for x in range(0, channelsNumber):
         actuator="ch%d" % (x)
         if desiredConfig[actuator] > 0:
@@ -45,8 +46,8 @@ def cloudSimulation(desiredConfig, channelsNumber, cloudMaxTime):
         else:
             newConfig[actuator] = desiredConfig[actuator]
         
-        signCH=GPIO.PWM(ch[x],dutyCicle)
-        signCH.start(newConfig[actuator])
+        signCH.append(GPIO.PWM(ch[x],dutyCicle))
+        signCH[x].start(newConfig[actuator])
     print(desiredConfig)
     print(newConfig)
     time.sleep(cloudTime)
@@ -60,13 +61,14 @@ with open('lightConfig.json') as json_file:
         if timeString == conf['time']:
             if data['cloudSettings']['cloudSimulation'] == True:
                 cloudSimulation(conf, len(ch), data['cloudSettings']['cloudMaxTime'])
+            signCH = []
             for x in range(0, len(ch)):
                 actuator="ch%d" % (x)
-                signCH=GPIO.PWM(ch[x],dutyCicle)
-                signCH.start(conf[actuator])
+                signCH.append(GPIO.PWM(ch[x],dutyCicle))
+                signCH[x].start(conf[actuator])
                 
 if ch[0] == GPIO.LOW and ch[1] == GPIO.LOW and ch[2] == GPIO.LOW and ch[3] == GPIO.LOW:
-    cooler = GPIO.LOW
+    GPIO.output(cooler, GPIO.LOW)
 else:
-    cooler = GPIO.HIGH
+    GPIO.output(cooler, GPIO.HIGH)
     

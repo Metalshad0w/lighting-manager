@@ -15,7 +15,7 @@ pw = [21, 20, 16, 12, 7, 8, 25, 24, 23, 18] #GPIO21, etc
 #define power plug pins as output and turn all channels OFF
 #power plug relay is ON with low signal, and OFF with High sinal
 for powerPlug in pw:
-    GPIO.setup(pw, GPIO.OUT)
+    GPIO.setup(powerPlug, GPIO.OUT)
 #     GPIO.output(pw, GPIO.HIGH)
 
 #get the time value and format
@@ -33,18 +33,18 @@ def tideSimulation(settings):
         with open('powerPlugConfig.json', 'w') as file:
             json.dump(settings, file, indent=2)
         skimmerPlug = settings["skimmerSettings"]["skimmerPowerPlug"]
-        GPIO.output(pw[skimmerPlug], True) #disable skimmer to prevent overflow
+        GPIO.output(pw[skimmerPlug], GPIO.HIGH) #disable skimmer to prevent overflow
         pumpPlugs = settings["tideSettings"]["pumpPowerPlugs"]
         pumpPlugsTemp = pumpPlugs.copy(); #create a copy to remove the disabled pumps
         tideDuration = settings["tideSettings"]["tideDuration"]
         for x in range(0, len(pumpPlugsTemp)):
             disablePump = random.randint(0, len(pumpPlugsTemp)-1)
-            GPIO.output(pw[pumpPlugsTemp.pop(disablePump)], True)
+            GPIO.output(pw[pumpPlugsTemp.pop(disablePump)], GPIO.HIGH)
             time.sleep(tideDuration/3)
         time.sleep(tideDuration)
         for x in range(0, len(pumpPlugs)):
-            GPIO.output(pw[pumpPlugs[x]], True)
-        GPIO.output(pw[skimmerPlug], False)
+            GPIO.output(pw[pumpPlugs[x]], GPIO.HIGH)
+        GPIO.output(pw[skimmerPlug], GPIO.LOW)
     
 
 
